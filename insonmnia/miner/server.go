@@ -149,6 +149,17 @@ func NewMiner(cfg Config, opts ...Option) (m *Miner, err error) {
 		o.locatorClient = pb.NewLocatorClient(locatorCC)
 	}
 
+	if o.ssh == nil {
+		if cfg.SSH() != nil {
+			ssh, err := NewSSH(cfg.SSH())
+			if err != nil {
+				cancel()
+				return nil, err
+			}
+			o.ssh = ssh
+		}
+	}
+
 	// The rotator will be stopped by ctx
 	certRotator, TLSConf, err := util.NewHitlessCertRotator(ctx, o.key)
 	if err != nil {
